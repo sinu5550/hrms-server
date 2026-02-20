@@ -19,12 +19,32 @@ enum Role {
   EMPLOYEE
 }
 
+enum DepartmentStatus {
+  Active
+  Inactive
+}
+
+model Department {
+  id             String   @id @default(cuid())
+  departmentCode String   @unique
+  name           String   @unique
+  status         DepartmentStatus @default(Active)
+  managerId      String?
+  manager        User?    @relation("DepartmentManager", fields: [managerId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  users          User[]   @relation("DepartmentEmployees")
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
-  password  String
-  role      Role     @default(EMPLOYEE)
-  createdAt DateTime @default(now())
+  password     String
+  role         Role        @default(EMPLOYEE)
+  departmentId       String?
+  department         Department? @relation("DepartmentEmployees", fields: [departmentId], references: [id])
+  managedDepartments Department[] @relation("DepartmentManager")
+  createdAt          DateTime    @default(now())
   updatedAt DateTime @updatedAt
 }
