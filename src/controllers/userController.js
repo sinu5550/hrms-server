@@ -6,17 +6,37 @@ const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";
 
 const createUser = async (req, res) => {
   try {
-    const { email, name, role, password } = req.body;
+    const {
+      email,
+      password,
+      role,
+      firstName,
+      lastName,
+      username,
+      phone,
+      company,
+      about,
+      departmentId,
+      designationId,
+      joiningDate,
+    } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
-    const validRoles = ["ADMIN", "SUPERVISOR", "EMPLOYEE"];
-    if (role && !validRoles.includes(role)) {
-      return res.status(400).json({
-        error: "Invalid role. Role must be ADMIN, SUPERVISOR, or EMPLOYEE",
-      });
+    // Auto-generate Employee ID
+    const lastUser = await prisma.user.findFirst({
+      where: { employeeId: { startsWith: "EMP-" } },
+      orderBy: { createdAt: "desc" },
+    });
+
+    let newEmpId = "EMP-0001";
+    if (lastUser && lastUser.employeeId) {
+      const lastNumber = parseInt(lastUser.employeeId.replace("EMP-", ""), 10);
+      if (!isNaN(lastNumber)) {
+        newEmpId = `EMP-${String(lastNumber + 1).padStart(4, "0")}`;
+      }
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -24,9 +44,19 @@ const createUser = async (req, res) => {
     const newUser = await prisma.user.create({
       data: {
         email,
-        name,
         password: hashedPassword,
+        name: `${firstName} ${lastName}`.trim(),
+        firstName,
+        lastName,
+        username,
         role: role || "EMPLOYEE",
+        employeeId: newEmpId,
+        phone,
+        company,
+        about,
+        departmentId,
+        designationId,
+        joiningDate: joiningDate ? new Date(joiningDate) : null,
       },
     });
 
@@ -61,6 +91,10 @@ const createUser = async (req, res) => {
 const getUsers = async (req, res) => {
   try {
     const users = await prisma.user.findMany({
+      include: {
+        department: { select: { name: true, departmentCode: true } },
+        designation: { select: { name: true, designationCode: true } },
+      },
       orderBy: { createdAt: "desc" },
     });
     res.json(users);

@@ -34,17 +34,40 @@ model Department {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   users          User[]   @relation("DepartmentEmployees")
+  designations   Designation[]
+}
+
+model Designation {
+  id              String   @id @default(cuid())
+  designationCode String   @unique
+  name            String   @unique
+  departmentId    String
+  department      Department @relation(fields: [departmentId], references: [id])
+  status          DepartmentStatus @default(Active)
+  users           User[]   @relation("UserDesignation")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password     String
-  role         Role        @default(EMPLOYEE)
+  id                 String       @id @default(cuid())
+  email              String       @unique
+  name               String?
+  firstName          String?
+  lastName           String?
+  username           String?      @unique
+  password           String
+  role               Role         @default(EMPLOYEE)
+  employeeId         String?      @unique
+  joiningDate        DateTime?
+  phone              String?
+  company            String?
+  about              String?      @db.Text
   departmentId       String?
-  department         Department? @relation("DepartmentEmployees", fields: [departmentId], references: [id])
+  department         Department?  @relation("DepartmentEmployees", fields: [departmentId], references: [id])
   managedDepartments Department[] @relation("DepartmentManager")
-  createdAt          DateTime    @default(now())
-  updatedAt DateTime @updatedAt
+  designationId      String?
+  designation        Designation? @relation("UserDesignation", fields: [designationId], references: [id])
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
 }
