@@ -59,6 +59,24 @@ io.on("connection", (socket) => {
   });
 });
 
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error("🔥 GLOBAL ERROR CAUGHT 🔥");
+  console.error(err);
+  if (err instanceof Error) {
+    console.error(err.stack);
+  } else {
+    console.error("Error Object Stringified:", JSON.stringify(err, null, 2));
+  }
+
+  res.status(500).json({
+    error:
+      err.message ||
+      "An unexpected server error occurred during upload or processing.",
+    details: err,
+  });
+});
+
 if (process.env.NODE_ENV !== "production") {
   httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

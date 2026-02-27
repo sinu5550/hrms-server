@@ -12,10 +12,14 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "hrms-uploads",
-    allowed_formats: ["jpg", "png", "pdf", "jpeg"],
+    resource_type: "auto",
+    allowed_formats: ["jpg", "png", "pdf", "jpeg", "doc", "docx"],
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
+});
 
 module.exports = { cloudinary, upload };

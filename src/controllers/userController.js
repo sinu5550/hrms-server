@@ -90,6 +90,8 @@ const createUser = async (req, res) => {
       },
       include: {
         certificates: true,
+        department: { select: { name: true, departmentCode: true } },
+        designation: { select: { name: true, designationCode: true } },
       },
     });
 
@@ -113,11 +115,14 @@ const createUser = async (req, res) => {
   } catch (error) {
     console.error("Error creating user:", error);
     if (error.code === "P2002") {
-      return res
-        .status(400)
-        .json({ error: "User with this email already exists" });
+      const field = error.meta?.target?.[0] || "field";
+      return res.status(400).json({
+        error: `User with this ${field} already exists. Please use a unique ${field}.`,
+      });
     }
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({
+      error: error.message || "Internal server error during user creation",
+    });
   }
 };
 
