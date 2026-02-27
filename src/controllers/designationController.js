@@ -89,6 +89,11 @@ const createDesignation = async (req, res) => {
         status: newDesignation.status,
       },
     });
+
+    // Emit socket event
+    if (req.io) {
+      req.io.emit("designationCreated", newDesignation);
+    }
   } catch (error) {
     if (error.code === "P2002") {
       return res
@@ -134,6 +139,11 @@ const updateDesignation = async (req, res) => {
         status: updatedDesignation.status,
       },
     });
+
+    // Emit socket event
+    if (req.io) {
+      req.io.emit("designationUpdated", updatedDesignation);
+    }
   } catch (error) {
     if (error.code === "P2025") {
       return res.status(404).json({ error: "Designation not found" });
@@ -172,6 +182,11 @@ const deleteDesignation = async (req, res) => {
     });
 
     res.json({ message: "Designation deleted successfully" });
+
+    // Emit socket event
+    if (req.io) {
+      req.io.emit("designationDeleted", id);
+    }
   } catch (error) {
     console.error("Error deleting designation:", error);
     res.status(500).json({ error: "Internal server error" });

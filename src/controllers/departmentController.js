@@ -85,6 +85,11 @@ const createDepartment = async (req, res) => {
         employeeCount: newDepartment._count.users,
       },
     });
+
+    // Emit socket event
+    if (req.io) {
+      req.io.emit("departmentCreated", newDepartment);
+    }
   } catch (error) {
     if (error.code === "P2002") {
       return res
@@ -125,6 +130,11 @@ const updateDepartment = async (req, res) => {
         employeeCount: updatedDepartment._count.users,
       },
     });
+
+    // Emit socket event
+    if (req.io) {
+      req.io.emit("departmentUpdated", updatedDepartment);
+    }
   } catch (error) {
     if (error.code === "P2025") {
       return res.status(404).json({ error: "Department not found" });
@@ -169,6 +179,11 @@ const deleteDepartment = async (req, res) => {
     });
 
     res.json({ message: "Department deleted successfully" });
+
+    // Emit socket event
+    if (req.io) {
+      req.io.emit("departmentDeleted", id);
+    }
   } catch (error) {
     console.error("Error deleting department:", error);
     res.status(500).json({ error: "Internal server error" });

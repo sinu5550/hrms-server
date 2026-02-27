@@ -4,14 +4,29 @@ const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const departmentRoutes = require("./routes/departmentRoutes");
 const designationRoutes = require("./routes/designationRoutes");
-
-const app = express();
-const PORT = process.env.PORT || 5000;
+const payrollRoutes = require("./routes/payrollRoutes");
 
 const allowedOrigins = [
   "http://localhost:5173",
   "https://hrms-client-siyan.vercel.app",
 ];
+
+const app = express();
+const httpServer = require("http").createServer(app);
+const io = require("socket.io")(httpServer, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  },
+});
+
+const PORT = process.env.PORT || 5000;
+
+// Attach socket.io to req for use in controllers
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
 app.use(
   cors({
@@ -31,13 +46,21 @@ app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/designations", designationRoutes);
+app.use("/api/payroll", payrollRoutes);
 
 app.get("/", (req, res) => {
   res.send("HRMS Server API is running");
 });
 
+io.on("connection", (socket) => {
+  console.log("Client connected:", socket.id);
+  socket.on("disconnect", () => {
+    console.log("Client disconnected:", socket.id);
+  });
+});
+
 if (process.env.NODE_ENV !== "production") {
-  app.listen(PORT, () => {
+  httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
 }

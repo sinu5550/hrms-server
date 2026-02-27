@@ -56,7 +56,7 @@ model User {
   firstName          String?
   lastName           String?
   username           String?      @unique
-  password           String
+  password           String?
   role               Role         @default(EMPLOYEE)
   employeeId         String?      @unique
   joiningDate        DateTime?
@@ -68,6 +68,67 @@ model User {
   managedDepartments Department[] @relation("DepartmentManager")
   designationId      String?
   designation        Designation? @relation("UserDesignation", fields: [designationId], references: [id])
+  
+  // New Profile Fields
+  profilePhotoUrl    String?
+  dateOfBirth        DateTime?
+  gender             String?
+  maritalStatus      String?
+  nationality        String?
+  identificationNo   String?
+  ssnNo              String?
+  passportNo         String?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  privateAddress     String?
+  dependentChildren  Int?         @default(0)
+  placeOfBirth       String?
+  visaNo             String?
+  workPermitNo       String?
+  privateEmail       String?
+  privatePhone       String?
+  bankAccounts       String?
+  certificateLevel   String?
+  fieldOfStudy       String?
+  resumeUrl          String?
+  
+  certificates       Certificate[]
+  salaries           Salary[]
+  
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
+}
+
+model Certificate {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Salary {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  amount        Float
+  month         String
+  year          String
+  earnings      Json?
+  deductions    Json?
+  netSalary     Float
+  payslipNo     String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model PayrollItem {
+  id           String   @id @default(cuid())
+  name         String
+  category     String   // Addition, Overtime, Deduction
+  amountType   String   // Fixed, Percentage
+  defaultValue Float    @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
