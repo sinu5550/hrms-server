@@ -289,6 +289,44 @@ const updateUser = async (req, res) => {
   }
 };
 
+const updateUserRole = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body || {};
+
+    if (!role) {
+      return res.status(400).json({ error: "Role is required" });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: {
+        role,
+      },
+      include: {
+        department: { select: { name: true, departmentCode: true } },
+        designation: { select: { name: true, designationCode: true } },
+        certificates: true,
+        salaries: {
+          orderBy: { createdAt: "desc" },
+        },
+      },
+    });
+
+    res.json({
+      message: "Role updated successfully",
+      user: updatedUser,
+    });
+
+    if (req.io) {
+      req.io.emit("userUpdated", updatedUser);
+    }
+  } catch (error) {
+    console.error("Error updating user role:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -384,5 +422,6 @@ module.exports = {
   getUsers,
   getUserById,
   updateUser,
+  updateUserRole,
   login,
 };

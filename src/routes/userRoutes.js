@@ -4,6 +4,7 @@ const {
   getUsers,
   getUserById,
   updateUser,
+  updateUserRole,
   login,
 } = require("../controllers/userController");
 const { upload } = require("../lib/cloudinaryConfig");
@@ -22,6 +23,7 @@ router.post(
 router.get("/", getUsers);
 router.get("/:id", getUserById);
 router.post("/login", login);
+router.put("/:id/role", updateUserRole);
 router.put(
   "/:id",
   upload.fields([
