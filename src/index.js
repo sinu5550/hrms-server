@@ -5,6 +5,7 @@ const userRoutes = require("./routes/userRoutes");
 const departmentRoutes = require("./routes/departmentRoutes");
 const designationRoutes = require("./routes/designationRoutes");
 const payrollRoutes = require("./routes/payrollRoutes");
+const policyRoutes = require("./routes/policyRoutes");
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -47,6 +48,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/designations", designationRoutes);
 app.use("/api/payroll", payrollRoutes);
+app.use("/api/policies", policyRoutes);
 
 app.get("/", (req, res) => {
   res.send("HRMS Server API is running");
