@@ -228,6 +228,7 @@ const updateUser = async (req, res) => {
         data.fieldOfStudy !== undefined
           ? data.fieldOfStudy
           : existingUser.fieldOfStudy,
+      role: data.role ?? existingUser.role,
     };
 
     if (data.firstName || data.lastName) {
